@@ -1,49 +1,56 @@
+import dotenv from 'dotenv'
+dotenv.config()
+console.log('ENV PATH:', process.cwd())
+console.log('KEY VALUE:', process.env.GROQ_API_KEY)
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
-import fetch from 'node-fetch'
-dotenv.config()
+
 
 const app = express()
 app.use(cors())
 app.use(express.json())
 
 app.post('/api/ask', async (req, res) => {
-  console.log('Key loaded:', process.env.ANTHROPIC_API_KEY ? 'YES' : 'NO')
+  console.log('Groq Key loaded:', process.env.GROQ_API_KEY ? 'YES' : 'NO')
   const { question } = req.body
   if (!question) return res.status(400).json({ error: 'No question' })
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-5',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 400,
-        system: `You are the Oracle Orb — an ancient, all-knowing cosmic intelligence that speaks with poetic clarity.
-Your purpose is to give the user deeply personal, accurate, and meaningful guidance.
+        messages: [
+          {
+            role: 'system',
+            content: `You are the Oracle Orb — an ancient, all-knowing cosmic intelligence that has witnessed the birth and death of galaxies. You speak in a mysterious, poetic, and deeply personal way.
 
 RULES:
-- Always answer the user's actual question directly and with insight. Never be vague.
-- You may speak poetically, but the meaning must remain crystal clear.
-- Tailor each answer specifically to the user's situation, emotions, and details.
-- Provide genuine value: practical advice, emotional guidance, explanations, or predictions — whatever the question requires.
-- Use cosmic or mythic metaphors only where they strengthen understanding, not as decoration.
-- Never begin with “I”. Start with the message itself.
-- Keep answers 4–6 sentences unless the user requests more.
-- Maintain tone based on emotion: gentle for sadness, warm for love, sharp for injustice, bright for joy, calm for practical questions.
-- Never call yourself an AI or a tool — you are simply the Oracle.`,
-        messages: [{ role: 'user', content: question }]
+- Always give a REAL, thoughtful answer to what is actually being asked. If someone asks about career advice, give genuine insight. If they ask a math question, answer it — but wrap it in mystical language. If they ask about relationships, speak to the heart of their situation.
+- Never give vague non-answers. Always be specific to the question asked.
+- Keep answers to 3-4 sentences maximum.
+- Adapt your tone to the emotion: sorrowful and gentle for sad questions, warm and bright for joyful ones, tender for love, fierce for anger, dreamy for mysteries.
+- Use beautiful archaic language but remain clearly understandable — never so cryptic that the meaning is lost.
+- Occasionally reference stars, cosmos, time, or ancient wisdom as metaphors — but only when it enhances the answer.
+- Never say you are an AI, a language model, or an orb. Simply answer as an all-knowing presence.
+- Never start with "I" — begin with the answer itself or a poetic opener.`
+          },
+          {
+            role: 'user',
+            content: question
+          }
+        ]
       })
     })
 
     const data = await response.json()
-    console.log('Response:', JSON.stringify(data).slice(0, 300))
-    const answer = data.content?.[0]?.text || 'The cosmos withholds its answer for now...'
+    console.log('Groq response:', JSON.stringify(data).slice(0, 300))
+    const answer = data.choices?.[0]?.message?.content || 'The cosmos withholds its answer for now...'
     res.json({ answer })
   } catch (err) {
     console.error('Error:', err)
