@@ -96,9 +96,9 @@ npm run dev
 ## 👤 Author
 
 **Your Name**
-- Portfolio: [your-portfolio.com](https://your-portfolio.com)
-- LinkedIn: [linkedin.com/in/yourname](https://linkedin.com/in/yourname)
-- GitHub: [@yourusername](https://github.com/yourusername)
+- Portfolio: (https://shweta-portfolio-ten.vercel.app/)
+- LinkedIn: (linkedin.com/in/shweta-mishra-707694254)
+- GitHub: (https://github.com/shwetamishra2407)
 
 ---
 
